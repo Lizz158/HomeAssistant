@@ -1,0 +1,16 @@
+# Whitelist files/folders with !, these will not be ignored.
+!*.yaml
+!.gitignore
+!*.md
+!*.sh
+!*.js*
+
+.ssh/
+id_rsa*
+
+secrets.yaml
+
+.storage
+.cloud
+.google.token 
+home-assistant.log
