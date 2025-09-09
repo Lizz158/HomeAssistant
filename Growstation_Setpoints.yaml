@@ -1,0 +1,98 @@
+input_select:
+  pflanze_oben:
+    name: Angebaute Pflanze oben
+    options:
+      - Tomate
+      - Salat
+    initial: Tomate
+  pflanze_mitte:
+    name: Angebaute Pflanze mitte
+    options:
+      - Tomate
+      - Salat
+    initial: Tomate
+  pflanze_unten:
+    name: Angebaute Pflanze unten
+    options:
+      - Tomate
+      - Salat
+    initial: Tomate
+
+input_number:
+  Tomate_Sollwert_Temperatur:
+    name: Tomate Sollwert Temperatur
+    min: 10
+    max: 35
+    step: 0.5
+    initial: 22
+    unit_of_measurement: °C
+    icon: mdi:temperature-celsius
+  Tomate_Sollwert_Feuchte:
+    name: Tomate Sollwert Feuchte
+    min: 0
+    max: 100
+    step: 1
+    initial: 35
+    unit_of_measurement: '%'
+    icon: mdi:water-alert-outline
+  Salat_Sollwert_Temperatur:
+    name: Salat Sollwert Temperatur
+    min: 10
+    max: 35
+    step: 0.5
+    initial: 22
+    unit_of_measurement: °C
+    icon: mdi:temperature-celsius
+  Salat_Sollwert_Feuchte:
+    name: Salat Sollwert Feuchte
+    min: 0
+    max: 100
+    step: 1
+    initial: 35
+    unit_of_measurement: '%'
+    icon: mdi:water-alert-outline
+  Aktiv_Sollwert_Temperatur:
+    name: Aktiv Sollwert Temperatur
+    min: 10
+    max: 35
+    step: 0.5
+    initial: 22
+    unit_of_measurement: °C
+    icon: mdi:temperature-celsius
+  Aktiv_Sollwert_Feuchte:
+    name: Aktiv Sollwert Feuchte
+    min: 0
+    max: 100
+    step: 1
+    initial: 35
+    unit_of_measurement: '%'
+    icon: mdi:water-alert-outline
+    
+template:
+  - sensor:
+      - name: "Aktiv_Sollwert_Temperatur"
+        unique_id: aktiv_sollwert_temperatur
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >
+          {% set auswahl = states('input_select.pflanze_oben') %}
+          {# Mapping: Auswahl-Text -> Setpoint value #}
+          {% set values = {
+            'Tomate': states('input_number.Tomate_Sollwert_Temperatur'),
+            'Salat':  states('input_number.Salat_Sollwert_Temperatur')
+          } %}
+          {{ (values.get(auswahl) or 0) | float }}
+        attributes:
+          quelle_entity_id: >
+            {% set auswahl = states('input_select.pflanze_oben') %}
+            {% set ents = {
+              'Tomate': 'input_number.Tomate_Sollwert_Temperatur',
+              'Salat':  'input_number.Salat_Sollwert_Temperatur'
+            } %}
+            {{ ents.get(auswahl,'unknown') }}
+    
+    
+    
+    
+    
+    

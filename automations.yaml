@@ -1,1 +1,516 @@
-[]
+- id: '1755962604038'
+  alias: Heizmatte_Mitte_Aus
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{{ states(''sensor.anzuchtstation_bodentemperatur_mitte'')|float(0)
+      > (states(''sensor.aktiv_sollwert_temperatur_mitte'')|float(0) + 0.2) }}'
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.anzuchtstation_heizmatte_mitte
+  mode: single
+- id: '1755962748077'
+  alias: Heizmatte_Mitte_An
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{{ states(''sensor.anzuchtstation_bodentemperatur_mitte'')|float(0)
+      < (states(''sensor.aktiv_sollwert_temperatur_mitte'')|float(0) - 0.2) }}'
+  conditions: []
+  actions:
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.anzuchtstation_heizmatte_mitte
+  mode: single
+- id: '1756218400020'
+  alias: Heizmatte_Oben_An
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{{ states(''sensor.anzuchtstation_bodentemperatur_oben'')|float(0)
+      < (states(''sensor.aktiv_sollwert_temperatur_oben'')|float(0) - 0.2) }}'
+  conditions: []
+  actions:
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - switch.anzuchtstation_heizmatte_oben
+  mode: single
+- id: '1756218507877'
+  alias: Heizmatte_Oben_Aus
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{{ states(''sensor.anzuchtstation_bodentemperatur_oben'')|float(0)
+      > (states(''sensor.aktiv_sollwert_temperatur_oben'')|float(0) + 0.2) }}'
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - switch.anzuchtstation_heizmatte_oben
+  mode: single
+- id: '1756218547199'
+  alias: Heizmatte_Unten_An
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{{ states(''sensor.anzuchtstation_bodentemperatur_unten'')|float(0)
+      < (states(''sensor.aktiv_sollwert_temperatur_unten'')|float(0) - 0.2) }}'
+  conditions: []
+  actions:
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - switch.anzuchtstation_heizmatte_unten
+  mode: single
+- id: '1756218576683'
+  alias: Heizmatte_Unten_Aus
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{{ states(''sensor.anzuchtstation_bodentemperatur_unten'')|float(0)
+      > (states(''sensor.aktiv_sollwert_temperatur_unten'')|float(0) + 0.2) }}'
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - switch.anzuchtstation_heizmatte_unten
+  mode: single
+- id: '1756218681301'
+  alias: Gießen Oben
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{{ states(''sensor.anzuchtstation_bodenfeuchtigkeit_oben'')|float(0)
+      < (states(''sensor.aktiv_sollwert_feuchte_oben'')|float(0)) }}'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  - trigger: time_pattern
+    hours: /3
+  conditions:
+  - condition: template
+    value_template: '{{ states(''sensor.anzuchtstation_bodenfeuchtigkeit_oben'')|float(0)
+      < (states(''sensor.aktiv_sollwert_feuchte_oben'')|float(0)) }}'
+  - condition: template
+    value_template: '{% set selection = states(''input_select.pflanze_oben'') %}
+
+      {{selection != ''Aus'' and selection != ''Unavailable''  and selection != ''Unknown''}}'
+  actions:
+  - action: notify.mobile_app_lisa_handy
+    metadata: {}
+    data:
+      title: Gießen
+      message: Pflanzen oben müssen gegoßen werden. Feuchtigkeit bei {{ states('sensor.anzuchtstation_bodenfeuchtigkeit_oben')
+        }} %!
+  mode: single
+- id: '1756218723004'
+  alias: Gießen_Unten
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{{ states(''sensor.anzuchtstation_bodenfeuchtigkeit_unten'')|float(0)
+      < (states(''sensor.aktiv_sollwert_feuchte_unten'')|float(0)) }}'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  - trigger: time_pattern
+    hours: /3
+  conditions:
+  - condition: template
+    value_template: '{{ states(''sensor.anzuchtstation_bodenfeuchtigkeit_unten'')|float(0)
+      < (states(''sensor.aktiv_sollwert_feuchte_unten'')|float(0)) }}'
+  - condition: template
+    value_template: '{% set selection = states(''input_select.pflanze_unten'') %}
+
+      {{selection != ''Aus'' and selection != ''Unavailable''  and selection != ''Unknown''}}'
+  actions:
+  - action: notify.mobile_app_lisa_handy
+    metadata: {}
+    data:
+      title: Gießen
+      message: Pflanzen unten müssen gegoßen werden. Feuchtigkeit bei {{ states('sensor.anzuchtstation_bodenfeuchtigkeit_unten')
+        }} %!
+  mode: single
+- id: '1756298012524'
+  alias: Lampe Mitte An
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{% set choice = states(''input_select.pflanze_mitte'') | lower
+      %}
+
+      {% set entity = ''input_datetime.'' ~ choice ~ ''_uhrzeit_lampe'' %}
+
+      {{ now().strftime(''%H:%M'') == (states(entity)[:5]) }}'
+  - trigger: numeric_state
+    entity_id:
+    - sensor.anzuchtstation_raumhelligkeit
+    above: 100
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  - trigger: numeric_state
+    entity_id:
+    - sensor.anzuchtstation_raumhelligkeit
+    below: 95
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  conditions:
+  - condition: template
+    value_template: "{% set choice = states('input_select.pflanze_mitte') | lower
+      %}\n{% set entity = 'input_datetime.' ~ choice ~ '_uhrzeit_lampe' %}\n{% set
+      week = states('sensor.aktive_woche_mitte') %} \n{% set h =states('input_number.'
+      ~ choice ~ '_stunden_lampe_w' ~ week) | int(0) %}\n{{ now().strftime('%H:%M')
+      >= (states(entity)[:5]) and \n  now().strftime('%H:%M') < (today_at(states(entity))
+      + timedelta(hours=h)).strftime('%H:%M') }}"
+  - condition: template
+    value_template: '{% set selection = states(''input_select.pflanze_mitte'') %}
+
+      {{selection != ''Aus'' and selection != ''Unavailable''  and selection != ''Unknown''}}'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: "{% set week = states('sensor.aktive_woche_mitte') %}\n{% set
+        choice = states('input_select.pflanze_mitte') | lower %}\n{% set entity =
+        'input_number.' ~ choice ~ '_prozent_lampe_w' ~ week %}\n{% if states('sensor.anzuchtstation_raumhelligkeit')
+        | int(0) > 100 %}\n  {{ states(entity) | int(0) - 20 }}\n{% else %}\n  {{
+        states(entity) | int(0)}}\n{% endif %}"
+    target:
+      entity_id: light.lampe_mitte
+  mode: single
+- id: '1756298470662'
+  alias: Lampe_Mitte_Helligkeit_Ab
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: "{% set choice = states('input_select.pflanze_mitte') | lower
+      %}\n{% set entity = 'input_datetime.' ~ choice ~ '_uhrzeit_lampe' %}\n{% set
+      week = states('sensor.aktive_woche_mitte') %} \n{% set h =states('input_number.'
+      ~ choice ~ '_stunden_lampe_w' ~ week) | int(0) %}\n{{now().strftime('%H:%M')
+      == (today_at(states(entity)) + timedelta(hours=h)).strftime('%H:%M') }}"
+  conditions:
+  - condition: template
+    value_template: '{% set selection = states(''input_select.pflanze_mitte'') %}
+
+      {{selection != ''Aus'' and selection != ''Unavailable''  and selection != ''Unknown''}}'
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.lampe_mitte
+  mode: single
+- id: '1756300146252'
+  alias: Lampe_Oben_An
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{% set choice = states(''input_select.pflanze_oben'') | lower
+      %}
+
+      {% set entity = ''input_datetime.'' ~ choice ~ ''_uhrzeit_lampe'' %}
+
+      {{ now().strftime(''%H:%M'') == (states(entity)[:5]) }}'
+  - trigger: numeric_state
+    entity_id:
+    - sensor.anzuchtstation_raumhelligkeit
+    above: 100
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  - trigger: numeric_state
+    entity_id:
+    - sensor.anzuchtstation_raumhelligkeit
+    below: 95
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  conditions:
+  - condition: template
+    value_template: "{% set choice = states('input_select.pflanze_oben') | lower %}\n{%
+      set entity = 'input_datetime.' ~ choice ~ '_uhrzeit_lampe' %}\n{% set week =
+      states('sensor.aktive_woche_oben') %} \n{% set h =states('input_number.' ~ choice
+      ~ '_stunden_lampe_w' ~ week) | int(0) %}\n{{ now().strftime('%H:%M') >= (states(entity)[:5])
+      and \n  now().strftime('%H:%M') < (today_at(states(entity)) + timedelta(hours=h)).strftime('%H:%M')
+      }}"
+  - condition: template
+    value_template: '{% set selection = states(''input_select.pflanze_oben'') %}
+
+      {{selection != ''Aus'' and selection != ''Unavailable''  and selection != ''Unknown''}}'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: "{% set week = states('sensor.aktive_woche_oben') %}\n{% set
+        choice = states('input_select.pflanze_oben') | lower %}\n{% set entity = 'input_number.'
+        ~ choice ~ '_prozent_lampe_w' ~ week %}\n{% if states('sensor.anzuchtstation_raumhelligkeit')
+        | int(0) > 100 %}\n  {{ states(entity) | int(0) - 20 }}\n{% else %}\n  {{
+        states(entity) | int(0)}}\n{% endif %}"
+    target:
+      entity_id: light.lampe_oben
+  mode: single
+- id: '1756300198725'
+  alias: Lampe_Oben_Aus
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: "{% set choice = states('input_select.pflanze_oben') | lower %}\n{%
+      set entity = 'input_datetime.' ~ choice ~ '_uhrzeit_lampe' %}\n{% set week =
+      states('sensor.aktive_woche_oben') %} \n{% set h =states('input_number.' ~ choice
+      ~ '_stunden_lampe_w' ~ week) | int(0) %}\n{{now().strftime('%H:%M') == (today_at(states(entity))
+      + timedelta(hours=h)).strftime('%H:%M') }}"
+  conditions:
+  - condition: template
+    value_template: '{% set selection = states(''input_select.pflanze_oben'') %}
+
+      {{selection != ''Aus'' and selection != ''Unavailable''  and selection != ''Unknown''}}'
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.lampe_oben
+  mode: single
+- id: '1756300263130'
+  alias: Lampe_Unten_An
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{% set choice = states(''input_select.pflanze_unten'') | lower
+      %}
+
+      {% set entity = ''input_datetime.'' ~ choice ~ ''_uhrzeit_lampe'' %}
+
+      {{ now().strftime(''%H:%M'') == (states(entity)[:5]) }}'
+  - trigger: numeric_state
+    entity_id:
+    - sensor.anzuchtstation_raumhelligkeit
+    above: 100
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  - trigger: numeric_state
+    entity_id:
+    - sensor.anzuchtstation_raumhelligkeit
+    below: 95
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  conditions:
+  - condition: template
+    value_template: "{% set choice = states('input_select.pflanze_unten') | lower
+      %}\n{% set entity = 'input_datetime.' ~ choice ~ '_uhrzeit_lampe' %}\n{% set
+      week = states('sensor.aktive_woche_unten') %} \n{% set h =states('input_number.'
+      ~ choice ~ '_stunden_lampe_w' ~ week) | int(0) %}\n{{ now().strftime('%H:%M')
+      >= (states(entity)[:5]) and \n  now().strftime('%H:%M') < (today_at(states(entity))
+      + timedelta(hours=h)).strftime('%H:%M') }}"
+  - condition: template
+    value_template: '{% set selection = states(''input_select.pflanze_unten'') %}
+
+      {{selection != ''Aus'' and selection != ''Unavailable''  and selection != ''Unknown''}}'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: "{% set week = states('sensor.aktive_woche_unten') %}\n{% set
+        choice = states('input_select.pflanze_unten') | lower %}\n{% set entity =
+        'input_number.' ~ choice ~ '_prozent_lampe_w' ~ week %}\n{% if states('sensor.anzuchtstation_raumhelligkeit')
+        | int(0) > 100 %}\n  {{ states(entity) | int(0) - 20 }}\n{% else %}\n  {{
+        states(entity) | int(0)}}\n{% endif %}"
+    target:
+      entity_id: light.lampe_unten
+  mode: single
+- id: '1756300670655'
+  alias: Lampe_Unten_Aus
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: "{% set choice = states('input_select.pflanze_unten') | lower
+      %}\n{% set entity = 'input_datetime.' ~ choice ~ '_uhrzeit_lampe' %}\n{% set
+      week = states('sensor.aktive_woche_unten') %} \n{% set h =states('input_number.'
+      ~ choice ~ '_stunden_lampe_w' ~ week) | int(0) %}\n{{now().strftime('%H:%M')
+      == (today_at(states(entity)) + timedelta(hours=h)).strftime('%H:%M') }}"
+  conditions:
+  - condition: template
+    value_template: '{% set selection = states(''input_select.pflanze_unten'') %}
+
+      {{selection != ''Aus'' and selection != ''Unavailable''  and selection != ''Unknown''}}'
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - light.lampe_unten
+  mode: single
+- id: '1756312997657'
+  alias: Gießen_Mitte
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{{ states(''sensor.anzuchtstation_bodenfeuchtigkeit_mitte'')|float(0)
+      < (states(''sensor.aktiv_sollwert_feuchte_mitte'')|float(0)) }}'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  - trigger: time_pattern
+    hours: /3
+  conditions:
+  - condition: template
+    value_template: '{{ states(''sensor.anzuchtstation_bodenfeuchtigkeit_mitte'')|float(0)
+      < (states(''sensor.aktiv_sollwert_feuchte_mitte'')|float(0)) }}'
+  - condition: template
+    value_template: '{% set selection = states(''input_select.pflanze_mitte'') %}
+
+      {{selection != ''Aus'' and selection != ''Unavailable''  and selection != ''Unknown''}}'
+  actions:
+  - action: notify.mobile_app_lisa_handy
+    metadata: {}
+    data:
+      title: Gießen
+      message: Pflanzen mitte müssen gegoßen werden. Feuchtigkeit bei {{ states('sensor.anzuchtstation_bodenfeuchtigkeit_mitte')
+        }} %!
+  mode: single
+- id: '1756480339281'
+  alias: Ventilator_An
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - fan.turmventilator
+    to: 'off'
+  - trigger: homeassistant
+    event: start
+  conditions:
+  - condition: template
+    value_template: '{% set selection1 = states(''input_select.pflanze_oben'') %}
+
+      {% set selection2 = states(''input_select.pflanze_mitte'') %}
+
+      {% set selection3 = states(''input_select.pflanze_unten'') %}
+
+      {{(selection1 != ''Aus'' and selection1 != ''Unavailable''  and selection1 !=
+      ''Unknown'') or
+
+      (selection2 != ''Aus'' and selection2 != ''Unavailable''  and selection2 !=
+      ''Unknown'') or
+
+      (selection3 != ''Aus'' and selection3 != ''Unavailable''  and selection3 !=
+      ''Unknown'')}}'
+  actions:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ is_state(''light.lampe_unten'', ''on'') or  is_state(''light.lampe_mitte'',
+          ''on'') or  is_state(''light.lampe_oben'', ''on'')}}'
+      sequence:
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 45
+          milliseconds: 0
+      - action: fan.turn_on
+        metadata: {}
+        data:
+          percentage: 25
+        target:
+          entity_id: fan.turmventilator
+      - action: fan.oscillate
+        metadata: {}
+        data:
+          oscillating: false
+        target:
+          entity_id: fan.turmventilator
+    - conditions:
+      - condition: template
+        value_template: '{{ is_state(''light.lampe_unten'', ''off'') and  is_state(''light.lampe_mitte'',
+          ''off'') and  is_state(''light.lampe_oben'', ''off'')}}'
+      sequence:
+      - delay:
+          hours: 0
+          minutes: 4
+          seconds: 45
+          milliseconds: 0
+      - action: fan.turn_on
+        metadata: {}
+        data:
+          percentage: 25
+        target:
+          entity_id: fan.turmventilator
+      - action: fan.oscillate
+        metadata: {}
+        data:
+          oscillating: false
+        target:
+          entity_id: fan.turmventilator
+  mode: single
+- id: '1756481690438'
+  alias: Ventilator_Aus
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - fan.turmventilator
+    to: 'on'
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ is_state(''light.lampe_unten'', ''on'') or  is_state(''light.lampe_mitte'',
+          ''on'') or  is_state(''light.lampe_oben'', ''on'')}}'
+      sequence:
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 15
+          milliseconds: 0
+      - action: fan.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: fan.turmventilator
+    - conditions:
+      - condition: template
+        value_template: '{{ is_state(''light.lampe_unten'', ''off'') and  is_state(''light.lampe_mitte'',
+          ''off'') and  is_state(''light.lampe_oben'', ''off'')}}'
+      sequence:
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 15
+          milliseconds: 0
+      - action: fan.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: fan.turmventilator
+  mode: single

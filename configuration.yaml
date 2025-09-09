@@ -10,16 +10,1446 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
+recorder:
+  purge_keep_days: 30   # optional: keep 30 days of history
+  include:
+    domains:
+      - input_number
+      - input_datetime
+      - input_select
+      - sensor
+      - light
+      - switch
+      - text
+
 http:
   use_x_forwarded_for: true
   trusted_proxies:
     - 172.30.33.0/24
 
-
+influxdb:
+  host: localhost
+  port: 8086
+  database: anzuchtstation
+  username: lisa
+  password: Arhama2
+  max_retries: 3
+  default_measurement: state
+  tags:
+    source: anzuchtstation
+  tags_attributes:
+    - friendly_name
+  exclude:
+    domains:
+      - persistent_notification
+      - person
+     
 mqtt:
   sensor:
+    - name: "Anzuchtstation_Raumhelligkeit"
+      state_topic: "anzuchtstation/lichtstaerke"
+      unit_of_measurement: "lx"
+      device_class: "illuminance"
+      value_template: "{{ value | round(0) }}"
     - name: "Anzuchtstation_Raumtemperatur"
       state_topic: "anzuchtstation/raumtemperatur"
       unit_of_measurement: "°C"
       device_class: "temperature"
       value_template: "{{ value | round(2) }}"
+    - name: "Anzuchtstation_Raumfeuchte"
+      state_topic: "anzuchtstation/raumfeuchte"
+      unit_of_measurement: "%"
+      device_class: "humidity"
+      value_template: "{{ value | round(2) }}"
+    - name: "Anzuchtstation_Bodentemperatur_oben"
+      state_topic: "anzuchtstation/bodentemperatur_oben"
+      unit_of_measurement: "°C"
+      device_class: "temperature"
+      value_template: "{{ value | round(2) }}"
+    - name: "Anzuchtstation_Bodentemperatur_mitte"
+      state_topic: "anzuchtstation/bodentemperatur_mitte"
+      unit_of_measurement: "°C"
+      device_class: "temperature"
+      value_template: "{{ value | round(2) }}"
+    - name: "Anzuchtstation_Bodentemperatur_unten"
+      state_topic: "anzuchtstation/bodentemperatur_unten"
+      unit_of_measurement: "°C"
+      device_class: "temperature"
+      value_template: "{{ value | round(2) }}"
+    - name: "Anzuchtstation_Bodenfeuchtigkeit_oben"
+      state_topic: "anzuchtstation/bodenfeuchtigkeit_oben"
+      unit_of_measurement: "%"
+      device_class: "humidity"
+      value_template: "{{ value | round(2) }}"
+    - name: "Anzuchtstation_Bodenfeuchtigkeit_mitte"
+      state_topic: "anzuchtstation/bodenfeuchtigkeit_mitte"
+      unit_of_measurement: "%"
+      device_class: "humidity"
+      value_template: "{{ value | round(2) }}"
+    - name: "Anzuchtstation_Bodenfeuchtigkeit_unten"
+      state_topic: "anzuchtstation/bodenfeuchtigkeit_unten"
+      unit_of_measurement: "%"
+      device_class: "humidity"
+      value_template: "{{ value | round(2) }}"
+  light:
+    - name: "Lampe_oben"
+      command_topic: "anzuchtstation/lampe_oben"
+      brightness_state_topic: "anzuchtstation/lampe_oben"
+      brightness_command_topic: "anzuchtstation/lampe_oben"
+    - name: "Lampe_mitte"
+      command_topic: "anzuchtstation/lampe_mitte"
+      brightness_state_topic: "anzuchtstation/lampe_mitte"
+      brightness_command_topic: "anzuchtstation/lampe_mitte"
+    - name: "Lampe_unten"
+      command_topic: "anzuchtstation/lampe_unten"
+      brightness_state_topic: "anzuchtstation/lampe_unten"
+      brightness_command_topic: "anzuchtstation/lampe_unten"
+  switch:
+    - name: "Anzuchtstation_Heizmatte_oben"  
+      command_topic: "anzuchtstation/heizmatte_oben"
+      icon: mdi:heat-wave
+    - name: "Anzuchtstation_Heizmatte_mitte"  
+      command_topic: "anzuchtstation/heizmatte_mitte"
+      icon: mdi:heat-wave
+    - name: "Anzuchtstation_Heizmatte_unten"  
+      command_topic: "anzuchtstation/heizmatte_unten"
+      icon: mdi:heat-wave
+  text:
+    - name: "Anzuchtstation_debug"
+      icon: mdi:ab-testing
+      mode: "text"
+      command_topic: "anzuchtstation/debug"
+      state_topic: "anzuchtstation/debug"
+input_select:
+  pflanze_oben:
+    name: Angebaute Pflanze oben
+    options:
+      - Spinat
+      - Rote Bete
+      - Tomate
+      - Salat
+      - Sellerie
+      - Fenchel
+      - Aus
+  pflanze_mitte:
+    name: Angebaute Pflanze mitte
+    options:
+      - Spinat
+      - Rote Bete
+      - Tomate
+      - Salat
+      - Sellerie
+      - Fenchel
+      - Aus
+  pflanze_unten:
+    name: Angebaute Pflanze unten
+    options:
+      - Spinat
+      - Rote Bete
+      - Tomate
+      - Salat
+      - Sellerie
+      - Fenchel
+      - Aus
+
+input_number:
+  tomate_sollwert_temperatur:
+    name: tomate sollwert temperatur
+    min: 10
+    max: 35
+    step: 0.5
+    unit_of_measurement: °C
+    icon: mdi:temperature-celsius
+  tomate_sollwert_feuchte:
+    name: tomate sollwert feuchte
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:water-alert-outline
+  tomate_stunden_lampe_w1:
+    name: tomate stunden lampe woche1
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  tomate_stunden_lampe_w2:
+    name: tomate stunden lampe woche2
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  tomate_stunden_lampe_w3:
+    name: tomate stunden lampe woche3
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  tomate_stunden_lampe_w4:
+    name: tomate stunden lampe woche4
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  tomate_stunden_lampe_w5:
+    name: tomate stunden lampe woche5
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  tomate_stunden_lampe_w6:
+    name: tomate stunden lampe woche6
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  tomate_stunden_lampe_w7:
+    name: tomate stunden lampe woche7
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  tomate_stunden_lampe_w8:
+    name: tomate stunden lampe woche8
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  tomate_stunden_lampe_w9:
+    name: tomate stunden lampe woche9
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  tomate_stunden_lampe_w10:
+    name: tomate stunden lampe woche10
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  tomate_stunden_lampe_w11:
+    name: tomate stunden lampe woche11
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  tomate_stunden_lampe_w12:
+    name: tomate stunden lampe woche12
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  tomate_prozent_lampe_w1:
+    name: tomate prozent lampe woche1
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  tomate_prozent_lampe_w2:
+    name: tomate prozent lampe woche2
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  tomate_prozent_lampe_w3:
+    name: tomate prozent lampe woche3
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  tomate_prozent_lampe_w4:
+    name: tomate prozent lampe woche4
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  tomate_prozent_lampe_w5:
+    name: tomate prozent lampe woche5
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  tomate_prozent_lampe_w6:
+    name: tomate prozent lampe woche6
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  tomate_prozent_lampe_w7:
+    name: tomate prozent lampe woche7
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  tomate_prozent_lampe_w8:
+    name: tomate prozent lampe woche50
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  tomate_prozent_lampe_w9:
+    name: tomate prozent lampe woche9
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  tomate_prozent_lampe_w10:
+    name: tomate prozent lampe woche10
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  tomate_prozent_lampe_w11:
+    name: tomate prozent lampe woche11
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  tomate_prozent_lampe_w12:
+    name: tomate prozent lampe woche12
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  rote_bete_sollwert_temperatur:
+    name: rote_bete sollwert temperatur
+    min: 10
+    max: 35
+    step: 0.5
+    unit_of_measurement: °C
+    icon: mdi:temperature-celsius
+  rote_bete_sollwert_feuchte:
+    name: rote_bete sollwert feuchte
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:water-alert-outline
+  rote_bete_stunden_lampe_w1:
+    name: rote_bete stunden lampe woche1
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  rote_bete_stunden_lampe_w2:
+    name: rote_bete stunden lampe woche2
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  rote_bete_stunden_lampe_w3:
+    name: rote_bete stunden lampe woche3
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  rote_bete_stunden_lampe_w4:
+    name: rote_bete stunden lampe woche4
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  rote_bete_stunden_lampe_w5:
+    name: rote_bete stunden lampe woche5
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  rote_bete_stunden_lampe_w6:
+    name: rote_bete stunden lampe woche6
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  rote_bete_stunden_lampe_w7:
+    name: rote_bete stunden lampe woche7
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  rote_bete_stunden_lampe_w8:
+    name: rote_bete stunden lampe woche8
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  rote_bete_stunden_lampe_w9:
+    name: rote_bete stunden lampe woche9
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  rote_bete_stunden_lampe_w10:
+    name: rote_bete stunden lampe woche10
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  rote_bete_stunden_lampe_w11:
+    name: rote_bete stunden lampe woche11
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  rote_bete_stunden_lampe_w12:
+    name: rote_bete stunden lampe woche12
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  rote_bete_prozent_lampe_w1:
+    name: rote_bete prozent lampe woche1
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  rote_bete_prozent_lampe_w2:
+    name: rote_bete prozent lampe woche2
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  rote_bete_prozent_lampe_w3:
+    name: rote_bete prozent lampe woche3
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  rote_bete_prozent_lampe_w4:
+    name: rote_bete prozent lampe woche4
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  rote_bete_prozent_lampe_w5:
+    name: rote_bete prozent lampe woche5
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  rote_bete_prozent_lampe_w6:
+    name: rote_bete prozent lampe woche6
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  rote_bete_prozent_lampe_w7:
+    name: rote_bete prozent lampe woche7
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  rote_bete_prozent_lampe_w8:
+    name: rote_bete prozent lampe woche50
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  rote_bete_prozent_lampe_w9:
+    name: rote_bete prozent lampe woche9
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  rote_bete_prozent_lampe_w10:
+    name: rote_bete prozent lampe woche10
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  rote_bete_prozent_lampe_w11:
+    name: rote_bete prozent lampe woche11
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  rote_bete_prozent_lampe_w12:
+    name: rote_bete prozent lampe woche12
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  spinat_sollwert_temperatur:
+    name: spinat sollwert temperatur
+    min: 10
+    max: 35
+    step: 0.5
+    unit_of_measurement: °C
+    icon: mdi:temperature-celsius
+  spinat_sollwert_feuchte:
+    name: spinat sollwert feuchte
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:water-alert-outline
+  spinat_stunden_lampe_w1:
+    name: spinat stunden lampe woche1
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  spinat_stunden_lampe_w2:
+    name: spinat stunden lampe woche2
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  spinat_stunden_lampe_w3:
+    name: spinat stunden lampe woche3
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  spinat_stunden_lampe_w4:
+    name: spinat stunden lampe woche4
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  spinat_stunden_lampe_w5:
+    name: spinat stunden lampe woche5
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  spinat_stunden_lampe_w6:
+    name: spinat stunden lampe woche6
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  spinat_stunden_lampe_w7:
+    name: spinat stunden lampe woche7
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  spinat_stunden_lampe_w8:
+    name: spinat stunden lampe woche8
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  spinat_stunden_lampe_w9:
+    name: spinat stunden lampe woche9
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  spinat_stunden_lampe_w10:
+    name: spinat stunden lampe woche10
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  spinat_stunden_lampe_w11:
+    name: spinat stunden lampe woche11
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  spinat_stunden_lampe_w12:
+    name: spinat stunden lampe woche12
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  spinat_prozent_lampe_w1:
+    name: spinat prozent lampe woche1
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  spinat_prozent_lampe_w2:
+    name: spinat prozent lampe woche2
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  spinat_prozent_lampe_w3:
+    name: spinat prozent lampe woche3
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  spinat_prozent_lampe_w4:
+    name: spinat prozent lampe woche4
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  spinat_prozent_lampe_w5:
+    name: spinat prozent lampe woche5
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  spinat_prozent_lampe_w6:
+    name: spinat prozent lampe woche6
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  spinat_prozent_lampe_w7:
+    name: spinat prozent lampe woche7
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  spinat_prozent_lampe_w8:
+    name: spinat prozent lampe woche50
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  spinat_prozent_lampe_w9:
+    name: spinat prozent lampe woche9
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  spinat_prozent_lampe_w10:
+    name: spinat prozent lampe woche10
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  spinat_prozent_lampe_w11:
+    name: spinat prozent lampe woche11
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  spinat_prozent_lampe_w12:
+    name: spinat prozent lampe woche12
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  salat_sollwert_temperatur:
+    name: salat sollwert temperatur
+    min: 10
+    max: 35
+    step: 0.5
+    unit_of_measurement: °C
+    icon: mdi:temperature-celsius
+  salat_sollwert_feuchte:
+    name: salat sollwert feuchte
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:water-alert-outline
+  salat_stunden_lampe_w1:
+    name: salat stunden lampe woche1
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  salat_stunden_lampe_w2:
+    name: salat stunden lampe woche2
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  salat_stunden_lampe_w3:
+    name: salat stunden lampe woche3
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  salat_stunden_lampe_w4:
+    name: salat stunden lampe woche4
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  salat_stunden_lampe_w5:
+    name: salat stunden lampe woche5
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  salat_stunden_lampe_w6:
+    name: salat stunden lampe woche6
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  salat_stunden_lampe_w7:
+    name: salat stunden lampe woche7
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  salat_stunden_lampe_w8:
+    name: salat stunden lampe woche8
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  salat_stunden_lampe_w9:
+    name: salat stunden lampe woche9
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  salat_stunden_lampe_w10:
+    name: salat stunden lampe woche10
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  salat_stunden_lampe_w11:
+    name: salat stunden lampe woche11
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  salat_stunden_lampe_w12:
+    name: salat stunden lampe woche12
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  salat_prozent_lampe_w1:
+    name: salat prozent lampe woche1
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  salat_prozent_lampe_w2:
+    name: salat prozent lampe woche2
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  salat_prozent_lampe_w3:
+    name: salat prozent lampe woche3
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  salat_prozent_lampe_w4:
+    name: salat prozent lampe woche4
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  salat_prozent_lampe_w5:
+    name: salat prozent lampe woche5
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  salat_prozent_lampe_w6:
+    name: salat prozent lampe woche6
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  salat_prozent_lampe_w7:
+    name: salat prozent lampe woche7
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  salat_prozent_lampe_w8:
+    name: salat prozent lampe woche50
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  salat_prozent_lampe_w9:
+    name: salat prozent lampe woche9
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  salat_prozent_lampe_w10:
+    name: salat prozent lampe woche10
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  salat_prozent_lampe_w11:
+    name: salat prozent lampe woche11
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  salat_prozent_lampe_w12:
+    name: salat prozent lampe woche12
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  sellerie_sollwert_temperatur:
+    name: sellerie sollwert temperatur
+    min: 10
+    max: 35
+    step: 0.5
+    unit_of_measurement: °C
+    icon: mdi:temperature-celsius
+  sellerie_sollwert_feuchte:
+    name: sellerie sollwert feuchte
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:water-alert-outline
+  sellerie_stunden_lampe_w1:
+    name: sellerie stunden lampe woche1
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  sellerie_stunden_lampe_w2:
+    name: sellerie stunden lampe woche2
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  sellerie_stunden_lampe_w3:
+    name: sellerie stunden lampe woche3
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  sellerie_stunden_lampe_w4:
+    name: sellerie stunden lampe woche4
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  sellerie_stunden_lampe_w5:
+    name: sellerie stunden lampe woche5
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  sellerie_stunden_lampe_w6:
+    name: sellerie stunden lampe woche6
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  sellerie_stunden_lampe_w7:
+    name: sellerie stunden lampe woche7
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  sellerie_stunden_lampe_w8:
+    name: sellerie stunden lampe woche8
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  sellerie_stunden_lampe_w9:
+    name: sellerie stunden lampe woche9
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  sellerie_stunden_lampe_w10:
+    name: sellerie stunden lampe woche10
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  sellerie_stunden_lampe_w11:
+    name: sellerie stunden lampe woche11
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  sellerie_stunden_lampe_w12:
+    name: sellerie stunden lampe woche12
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  sellerie_prozent_lampe_w1:
+    name: sellerie prozent lampe woche1
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  sellerie_prozent_lampe_w2:
+    name: sellerie prozent lampe woche2
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  sellerie_prozent_lampe_w3:
+    name: sellerie prozent lampe woche3
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  sellerie_prozent_lampe_w4:
+    name: sellerie prozent lampe woche4
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  sellerie_prozent_lampe_w5:
+    name: sellerie prozent lampe woche5
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  sellerie_prozent_lampe_w6:
+    name: sellerie prozent lampe woche6
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  sellerie_prozent_lampe_w7:
+    name: sellerie prozent lampe woche7
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  sellerie_prozent_lampe_w8:
+    name: sellerie prozent lampe woche50
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  sellerie_prozent_lampe_w9:
+    name: sellerie prozent lampe woche9
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  sellerie_prozent_lampe_w10:
+    name: sellerie prozent lampe woche10
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  sellerie_prozent_lampe_w11:
+    name: sellerie prozent lampe woche11
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  sellerie_prozent_lampe_w12:
+    name: sellerie prozent lampe woche12
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  fenchel_sollwert_temperatur:
+    name: fenchel sollwert temperatur
+    min: 10
+    max: 35
+    step: 0.5
+    unit_of_measurement: °C
+    icon: mdi:temperature-celsius
+  fenchel_sollwert_feuchte:
+    name: fenchel sollwert feuchte
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:water-alert-outline
+  fenchel_stunden_lampe_w1:
+    name: fenchel stunden lampe woche1
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  fenchel_stunden_lampe_w2:
+    name: fenchel stunden lampe woche2
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  fenchel_stunden_lampe_w3:
+    name: fenchel stunden lampe woche3
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  fenchel_stunden_lampe_w4:
+    name: fenchel stunden lampe woche4
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  fenchel_stunden_lampe_w5:
+    name: fenchel stunden lampe woche5
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  fenchel_stunden_lampe_w6:
+    name: fenchel stunden lampe woche6
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  fenchel_stunden_lampe_w7:
+    name: fenchel stunden lampe woche7
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  fenchel_stunden_lampe_w8:
+    name: fenchel stunden lampe woche8
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  fenchel_stunden_lampe_w9:
+    name: fenchel stunden lampe woche9
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  fenchel_stunden_lampe_w10:
+    name: fenchel stunden lampe woche10
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  fenchel_stunden_lampe_w11:
+    name: fenchel stunden lampe woche11
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  fenchel_stunden_lampe_w12:
+    name: fenchel stunden lampe woche12
+    min: 0
+    max: 24
+    step: 1
+    unit_of_measurement: 'h'
+    icon: mdi:ceiling-light
+  fenchel_prozent_lampe_w1:
+    name: fenchel prozent lampe woche1
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  fenchel_prozent_lampe_w2:
+    name: fenchel prozent lampe woche2
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  fenchel_prozent_lampe_w3:
+    name: fenchel prozent lampe woche3
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  fenchel_prozent_lampe_w4:
+    name: fenchel prozent lampe woche4
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  fenchel_prozent_lampe_w5:
+    name: fenchel prozent lampe woche5
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  fenchel_prozent_lampe_w6:
+    name: fenchel prozent lampe woche6
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  fenchel_prozent_lampe_w7:
+    name: fenchel prozent lampe woche7
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  fenchel_prozent_lampe_w8:
+    name: fenchel prozent lampe woche50
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  fenchel_prozent_lampe_w9:
+    name: fenchel prozent lampe woche9
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  fenchel_prozent_lampe_w10:
+    name: fenchel prozent lampe woche10
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  fenchel_prozent_lampe_w11:
+    name: fenchel prozent lampe woche11
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light
+  fenchel_prozent_lampe_w12:
+    name: fenchel prozent lampe woche12
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: '%'
+    icon: mdi:ceiling-light    
+  oben_start_woche:
+    name: oben start woche
+    min: 1
+    max: 12
+    step: 1
+    mode: box
+  mitte_start_woche:
+    name: mitte start woche
+    min: 1
+    max: 12
+    step: 1
+    mode: box
+  unten_start_woche:
+    name: unten start woche
+    min: 1
+    max: 12
+    step: 1
+    mode: box
+    
+input_datetime:
+  tomate_uhrzeit_lampe:
+    name: tomate uhrzeit lampe
+    has_date: false
+    has_time: true
+    icon: mdi:clock-time-eight-outline
+  rote_bete_uhrzeit_lampe:
+    name: rote_bete uhrzeit lampe
+    has_date: false
+    has_time: true
+    icon: mdi:clock-time-eight-outline
+  spinat_uhrzeit_lampe:
+    name: spinat uhrzeit lampe
+    has_date: false
+    has_time: true
+    icon: mdi:clock-time-eight-outline
+  salat_uhrzeit_lampe:
+    name: salat uhrzeit lampe
+    has_date: false
+    has_time: true
+    icon: mdi:clock-time-eight-outline
+  sellerie_uhrzeit_lampe:
+    name: sellerie uhrzeit lampe
+    has_date: false
+    has_time: true
+    icon: mdi:clock-time-eight-outline
+  fenchel_uhrzeit_lampe:
+    name: fenchel uhrzeit lampe
+    has_date: false
+    has_time: true
+    icon: mdi:clock-time-eight-outline
+    
+    
+template:
+  - sensor:
+      - name: "Aktiv_Sollwert_Temperatur_Oben"
+        unique_id: aktiv_sollwert_temperatur_oben
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >
+          {% set auswahl = states('input_select.pflanze_oben') %}
+          {# Mapping: Auswahl-Text -> Setpoint value #}
+          {% set values = {
+            'Tomate': states('input_number.tomate_sollwert_temperatur'),
+            'Rote Bete': states('input_number.rote_bete_sollwert_temperatur'),
+            'Spinat': states('input_number.spinat_sollwert_temperatur'),
+            'Salat': states('input_number.salat_sollwert_temperatur'),
+            'Sellerie': states('input_number.sellerie_sollwert_temperatur'),
+            'Fenchel': states('input_number.fenchel_sollwert_temperatur'),
+            'Aus':  0
+          } %}
+          {{ (values.get(auswahl) or 0) | float }}
+      - name: "Aktiv_Sollwert_Feuchte_Oben"
+        unique_id: aktiv_sollwert_feuchte_oben
+        device_class: moisture
+        unit_of_measurement: "%"
+        state: >
+          {% set auswahl = states('input_select.pflanze_oben') %}
+          {# Mapping: Auswahl-Text -> Setpoint value #}
+          {% set values = {
+            'Tomate': states('input_number.tomate_sollwert_feuchte'),
+            'Rote Bete': states('input_number.rote_bete_sollwert_feuchte'),
+            'Spinat': states('input_number.spinat_sollwert_feuchte'),
+            'Salat': states('input_number.salat_sollwert_feuchte'),
+            'Sellerie': states('input_number.sellerie_sollwert_feuchte'),
+            'Fenchel': states('input_number.fenchel_sollwert_feuchte'),
+            'Aus':  0
+          } %}
+          {{ (values.get(auswahl) or 0) | float }}
+      - name: "Aktiv_Sollwert_Temperatur_Mitte"
+        unique_id: aktiv_sollwert_temperatur_mitte
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >
+          {% set auswahl = states('input_select.pflanze_Mitte') %}
+          {# Mapping: Auswahl-Text -> Setpoint value #}
+          {% set values = {
+            'Tomate': states('input_number.tomate_sollwert_temperatur'),
+            'Rote Bete': states('input_number.rote_bete_sollwert_temperatur'),
+            'Spinat': states('input_number.spinat_sollwert_temperatur'),
+            'Salat': states('input_number.salat_sollwert_temperatur'),
+            'Sellerie': states('input_number.sellerie_sollwert_temperatur'),
+            'Fenchel': states('input_number.fenchel_sollwert_temperatur'),
+            'Aus':  0
+          } %}
+          {{ (values.get(auswahl) or 0) | float }}
+      - name: "Aktiv_Sollwert_Feuchte_Mitte"
+        unique_id: aktiv_sollwert_feuchte_mitte
+        device_class: moisture
+        unit_of_measurement: "%"
+        state: >
+          {% set auswahl = states('input_select.pflanze_Mitte') %}
+          {# Mapping: Auswahl-Text -> Setpoint value #}
+          {% set values = {
+            'Tomate': states('input_number.tomate_sollwert_feuchte'),
+            'Rote Bete': states('input_number.rote_bete_sollwert_feuchte'),
+            'Spinat': states('input_number.spinat_sollwert_feuchte'),
+            'Salat': states('input_number.salat_sollwert_feuchte'),
+            'Sellerie': states('input_number.sellerie_sollwert_feuchte'),
+            'Fenchel': states('input_number.fenchel_sollwert_feuchte'),
+            'Aus':  0
+          } %}
+          {{ (values.get(auswahl) or 0) | float }}
+          
+      - name: "Aktiv_Sollwert_Temperatur_Unten"
+        unique_id: aktiv_sollwert_temperatur_unten
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >
+          {% set auswahl = states('input_select.pflanze_Unten') %}
+          {# Mapping: Auswahl-Text -> Setpoint value #}
+          {% set values = {
+            'Tomate': states('input_number.tomate_sollwert_temperatur'),
+            'Rote Bete': states('input_number.rote_bete_sollwert_temperatur'),
+            'Spinat': states('input_number.spinat_sollwert_temperatur'),
+            'Salat': states('input_number.salat_sollwert_temperatur'),
+            'Sellerie': states('input_number.sellerie_sollwert_temperatur'),
+            'Fenchel': states('input_number.fenchel_sollwert_temperatur'),
+            'Aus':  0
+          } %}
+          {{ (values.get(auswahl) or 0) | float }}
+      - name: "Aktiv_Sollwert_Feuchte_Unten"
+        unique_id: aktiv_sollwert_feuchte_unten
+        device_class: moisture
+        unit_of_measurement: "%"
+        state: >
+          {% set auswahl = states('input_select.pflanze_Unten') %}
+          {# Mapping: Auswahl-Text -> Setpoint value #}
+          {% set values = {
+            'Tomate': states('input_number.tomate_sollwert_feuchte'),
+            'Rote Bete': states('input_number.rote_bete_sollwert_feuchte'),
+            'Spinat': states('input_number.spinat_sollwert_feuchte'),
+            'Salat': states('input_number.salat_sollwert_feuchte'),
+            'Sellerie': states('input_number.sellerie_sollwert_feuchte'),
+            'Fenchel': states('input_number.fenchel_sollwert_feuchte'),
+            'Aus':  0
+          } %}
+          {{ (values.get(auswahl) or 0) | float }}
+      - name: "Aktive Woche Oben"
+        state: >-
+          {% set start = states('input_number.oben_start_woche') | int(1) %}
+          {% set start_time = states.input_select.pflanze_oben.last_changed %}
+          {% if not is_state('input_select.pflanze_oben','Aus') %}
+            {% set weeks = ((now() - start_time).days // 7) %}
+            {% set value = start + weeks %}
+            {{ [value, 12] | min }}
+          {% else %}
+            0
+          {% endif %}
+      - name: "Aktive Woche Mitte"
+        state: >-
+          {% set start = states('input_number.mitte_start_woche') | int(1) %}
+          {% set start_time = states.input_select.pflanze_mitte.last_changed %}
+          {% if not is_state('input_select.pflanze_mitte','Aus') %}
+            {% set weeks = ((now() - start_time).days // 7) %}
+            {% set value = start + weeks %}
+            {{ [value, 12] | min }}
+          {% else %}
+            0
+          {% endif %}
+      - name: "Aktive Woche Unten"
+        state: >-
+          {% set start = states('input_number.unten_start_woche') | int(1) %}
+          {% set start_time = states.input_select.pflanze_unten.last_changed %}
+          {% if not is_state('input_select.pflanze_unten','Aus') %}
+            {% set weeks = ((now() - start_time).days // 7) %}
+            {% set value = start + weeks %}
+            {{ [value, 12] | min }}
+          {% else %}
+            0
+          {% endif %}
+      - name: "Absolute Raumfeuchte"
+        unit_of_measurement: "g/m³"
+        icon: mdi:water-percent
+        state: >-
+          {% set T = states('sensor.anzuchtstation_raumtemperatur') | float(0) %}
+          {% set RH = states('sensor.anzuchtstation_raumfeuchte') | float(0) %}
+          {% set es = 6.112 * e ** ((17.67 * T) / (T + 243.5)) %}
+          {% set ah = (es * RH * 2.1674) / (273.15 + T) %}
+          {{ ah | round(2) }}
+      - name: "Vapor Pressure Deficit"
+        unit_of_measurement: "kPa"
+        icon: mdi:cloud-percent-outline
+        state: >-
+          {% set T = states('sensor.anzuchtstation_raumtemperatur') | float(0) %}
+          {% set RH = states('sensor.anzuchtstation_raumfeuchte') | float(0) %}
+          {% set svp = 0.6108 * e ** ((17.27 * T) / (T + 237.3)) %}
+          {% set vpd = svp * (1 - RH / 100) %}
+          {{ vpd | round(2) }}
