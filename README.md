@@ -1,4 +1,4 @@
-# Home Assistant Automations for Vegetable Seedling Station
+# Home Assistant Automations for Vegetable Seedling Propagation Station
 
 This repository contains Home Assistant automations, helpers, templates and MQTT integrations that run a modular indoor seedling propagation station for vegetable crops.
 The system maintains consistent early growth conditions by monitoring and reacting to micro‑climate parameters and plant development phases.
